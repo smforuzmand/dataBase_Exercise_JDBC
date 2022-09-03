@@ -5,11 +5,11 @@ import model.Product;
 import java.util.List;
 import java.util.Optional;
 
-public interface ProductDAO {
+public interface ProductDAO extends GenericCrud<Product ,String> {
+
+    Optional<Product> findById(Integer id);
 
     public Product save(Product product);
-
-    Optional<Product> findById(int id);
 
     List<Product> findAll();
 
