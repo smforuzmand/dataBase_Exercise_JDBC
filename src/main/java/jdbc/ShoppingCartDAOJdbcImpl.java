@@ -4,6 +4,7 @@ import DAOs.ShoppingCartDAO;
 import model.ShoppingCart;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,25 +18,24 @@ public class ShoppingCartDAOJdbcImpl extends AbstractOperations implements Shopp
         int rowAffected = Integer.MIN_VALUE;
         try {
             Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO shopping_cart (id, last_update, order_status, delivery_address, customer_reference) " +
-                    "VALUES (?,?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO shopping_cart (id, last_update, order_status, delivery_address, customer_reference) VALUES (?,?,?,?,?)");
 
-            preparedStatement.setInt(1,shoppingCart.getId());
+            preparedStatement.setInt(1, shoppingCart.getId());
             preparedStatement.setTimestamp(2, Timestamp.valueOf(shoppingCart.getLastUpdate()));
-            preparedStatement.setString(3,shoppingCart.getOrderStatus());
-            preparedStatement.setString(4,shoppingCart.getDeliveryAddress());
+            preparedStatement.setString(3, shoppingCart.getOrderStatus());
+            preparedStatement.setString(4, shoppingCart.getDeliveryAddress());
             preparedStatement.setString(5, shoppingCart.getCustomerReference());
 
 
-            preparedStatement.execute();
+            preparedStatement.executeQuery();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        if (rowAffected == 1){
+        if (rowAffected == 1) {
             return shoppingCart;
-        }else {
+        } else {
             return null;
         }
 
@@ -49,10 +49,10 @@ public class ShoppingCartDAOJdbcImpl extends AbstractOperations implements Shopp
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO shopping_cart (id, last_update, order_status, delivery_address, customer_reference) " +
                     "VALUES (?,?,?,?,?)");
 
-            preparedStatement.setInt(1,cart.getId());
+            preparedStatement.setInt(1, cart.getId());
             preparedStatement.setTimestamp(2, Timestamp.valueOf(cart.getLastUpdate()));
-            preparedStatement.setString(3,cart.getOrderStatus());
-            preparedStatement.setString(4,cart.getDeliveryAddress());
+            preparedStatement.setString(3, cart.getOrderStatus());
+            preparedStatement.setString(4, cart.getDeliveryAddress());
             preparedStatement.setString(5, cart.getCustomerReference());
 
 
@@ -71,7 +71,7 @@ public class ShoppingCartDAOJdbcImpl extends AbstractOperations implements Shopp
         try {
             Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM shopping_cart WHERE order_status LIKE ?");
-            preparedStatement.setString(1,status.getOrderStatus());
+            preparedStatement.setString(1, status.getOrderStatus());
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 carts.add(mapToShoppingCart(resultSet));
@@ -88,7 +88,7 @@ public class ShoppingCartDAOJdbcImpl extends AbstractOperations implements Shopp
     @Override
     public List<ShoppingCart> findByReference(ShoppingCart customer) {
 
-        final String FINDBYREFRENCE= "SELECT * FROM shopping_cart WHERE customer_reference LIKE ?";
+        final String FINDBYREFRENCE = "SELECT * FROM shopping_cart WHERE customer_reference LIKE ?";
         List<ShoppingCart> cartList = new ArrayList<>();
         try {
             Connection connection = getConnection();
@@ -109,22 +109,30 @@ public class ShoppingCartDAOJdbcImpl extends AbstractOperations implements Shopp
     @Override
     public List<ShoppingCart> findAll() {
         List<ShoppingCart> cartList = new ArrayList<>();
+
         try {
             Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT *FROM shopping_cart");
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM shopping_cart");
             ResultSet resultSet = preparedStatement.executeQuery();
+
             while (resultSet.next()) {
-                cartList.add(mapToShoppingCart(resultSet));
+                String order_status = resultSet.getString("order_status");
+                int id = resultSet.getInt("id");
+                LocalDateTime last_update = resultSet.getTimestamp("Last_update").toLocalDateTime();
+                String delivery_address = resultSet.getString("delivery_address");
+                String customer_reference = resultSet.getString("customer_reference");
+                ShoppingCart e = new ShoppingCart(
+                        id,
+                        last_update,
+                        order_status,
+                        delivery_address,
+                        customer_reference);
+                cartList.add(e);
             }
 
-
-
-
-
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-
 
         return cartList;
     }
@@ -146,7 +154,7 @@ public class ShoppingCartDAOJdbcImpl extends AbstractOperations implements Shopp
         try {
             Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM shopping_cart WHERE id = ?");
-            preparedStatement.setInt(1,id);
+            preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 shoppingCartFound = Optional.of(mapToShoppingCart(resultSet));

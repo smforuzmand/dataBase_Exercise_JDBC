@@ -10,25 +10,16 @@ public class ShoppingCart {
     private String customerReference;
     private boolean paymentApproved;
 
-    public ShoppingCart(int id, LocalDateTime lastUpdate, String deliveryAddress, String customerService, boolean paymentApproved , String orderStatus) {
-        this.id = id;
-        this.lastUpdate = lastUpdate;
-        this.deliveryAddress = deliveryAddress;
-        this.customerReference = customerService;
-        this.paymentApproved = paymentApproved;
-        this.orderStatus = orderStatus;
-    }
 
     public ShoppingCart() {
     }
 
-    public ShoppingCart(int id, LocalDateTime last_update, String order_status, String delivery_address, String customer_reference) {
-
-    }
-
-
-    public int getId() {
-        return id;
+    public ShoppingCart(int id, LocalDateTime lastUpdate, String orderStatus, String deliveryAddress, String customerReference) {
+        this.id = id;
+        this.lastUpdate = lastUpdate;
+        this.orderStatus = orderStatus;
+        this.deliveryAddress = deliveryAddress;
+        this.customerReference = customerReference;
     }
 
     public String getOrderStatus() {
@@ -84,5 +75,9 @@ public class ShoppingCart {
                 ", customerService='" + customerReference + '\'' +
                 ", paymentApproved=" + paymentApproved +
                 '}';
+    }
+
+    public int getId() {
+        return 0;
     }
 }

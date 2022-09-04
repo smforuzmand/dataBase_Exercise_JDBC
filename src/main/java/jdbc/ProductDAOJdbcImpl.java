@@ -70,9 +70,13 @@ public class ProductDAOJdbcImpl extends AbstractOperations implements ProductDAO
 
     @Override
     public Product save(Product product) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
         try {
-            Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO product(id, name, price) VALUES (?,?,?)");
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement("INSERT INTO product(id, name, price) VALUES (?,?,?)");
             preparedStatement.setInt(1, product.getId());
             preparedStatement.setString(2, product.getName());
             preparedStatement.setDouble(3, product.getPrice());
@@ -82,6 +86,8 @@ public class ProductDAOJdbcImpl extends AbstractOperations implements ProductDAO
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            closeAll(resultSet, preparedStatement, connection);
         }
 
 
@@ -106,7 +112,7 @@ public class ProductDAOJdbcImpl extends AbstractOperations implements ProductDAO
         }
 
 
-        return null;
+        return products;
     }
 
     @Override
@@ -170,14 +176,14 @@ public class ProductDAOJdbcImpl extends AbstractOperations implements ProductDAO
     public void delete(int id) {
 
         try {
-            Connection connection= getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM product WHERE id = ?");
-            preparedStatement.setInt(1,id);
+            preparedStatement.setInt(1, id);
             preparedStatement.execute();
 
 
         } catch (SQLException e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
 
     }
